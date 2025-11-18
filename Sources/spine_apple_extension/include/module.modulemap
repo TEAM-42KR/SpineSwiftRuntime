@@ -1,0 +1,17 @@
+module spine_apple_extension {
+    header "spine_apple_extension/spine_apple_extension.h"
+    
+    
+    module block_support {
+        header "spine_apple_extension/extensions/block_support.h"
+        export *
+        requires blocks
+    }
+    
+    module ns_dictionary_texture_loader {
+        header "spine_apple_extension/extensions/spine_ns_dictionary_texture_loader.h"
+        export *
+        requires objc
+    }
+    
+}

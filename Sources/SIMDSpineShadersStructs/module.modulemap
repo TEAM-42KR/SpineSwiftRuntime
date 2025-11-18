@@ -1,0 +1,4 @@
+module SIMDSpineShadersStructs {
+    header "SIMDSpineShadersStructs.h"
+    export *
+}
