@@ -21,7 +21,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/EsotericSoftware/spine-runtimes.git", branch: "4.2")
+        .package(url: "https://github.com/EsotericSoftware/spine-runtimes.git", branch: "4.3-beta")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -29,7 +29,7 @@ let package = Package(
         .target(
             name: "spine_apple_extension",
             dependencies: [
-                .product(name: "SpineCppLite", package: "spine-runtimes")
+                .product(name: "SpineC", package: "spine-runtimes")
             ],
             linkerSettings: [
                 .linkedLibrary("c++")
@@ -39,7 +39,8 @@ let package = Package(
             name: "SpineSwiftRuntime",
             dependencies: [
                 "spine_apple_extension", "SIMDSpineShadersStructs",
-                .product(name: "SpineCppLite", package: "spine-runtimes"),
+                .product(name: "SpineC", package: "spine-runtimes"),
+                .product(name: "SpineSwift", package: "spine-runtimes"),
             ]
         ),
 

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SpineCppLite
+import SpineC
 import spine_apple_extension
 
 #if canImport(Metal)

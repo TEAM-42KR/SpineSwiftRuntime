@@ -6,7 +6,7 @@
 //
 
 import SIMDSpineShadersStructs
-import SpineCppLite
+import SpineC
 import simd
 import spine_apple_extension
 
@@ -220,7 +220,7 @@ import spine_apple_extension
                     }
                     return command
                 })
-            let pageArrayRef = spine_atlas2_get_pages(&self.model.resource.skeletonData.pAtlas[])
+            let pageArrayRef = spine_atlas_get_pages(&self.model.resource.skeletonData.pAtlas[])
             let pageBuffer = UnsafeBufferPointer.init(
                 start: UnsafePointer<spine_atlas_page>(
                     OpaquePointer(spine_array_atlas_page_buffer(pageArrayRef))
@@ -289,10 +289,12 @@ import spine_apple_extension
             var textureMap = ContiguousArray<MTLTexture?>(repeating: nil, count: pageBuffer.count)
             var samplerMap = ContiguousArray<MTLSamplerState?>(repeating: nil, count: pageBuffer.count)
             for fragment in commandEntry.metaInfo {
-
                 let page = pageBuffer[fragment.pageIndex]
                 let pma = spine_atlas_page_get_pma(page)
-
+                let vertices = commandEntry.verteArray[fragment.slice]
+                defer {
+                    vertexStart += vertices.count
+                }
                 guard let pipelineState = pipeLineStates.renderPipelineState(for: fragment.blendMode, premultiplyAlpha: pma) else {
                     continue
                 }
@@ -302,7 +304,6 @@ import spine_apple_extension
                     currentPipeLine = pipelineState
                     renderEncoder.setRenderPipelineState(pipelineState)
                 }
-                let vertices = commandEntry.verteArray[fragment.slice]
                 if let texture = textureMap[fragment.pageIndex, safe2: self.delegate?.spineRenderer(self, textureForPage: page)] {
                     if !texture.isEqual(currentTexture) {
                         currentTexture = texture
@@ -324,7 +325,6 @@ import spine_apple_extension
                     vertexStart: vertexStart,
                     vertexCount: vertices.count
                 )
-                vertexStart += vertices.count
             }
             return true
         }

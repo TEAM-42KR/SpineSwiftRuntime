@@ -1,12 +1,14 @@
 //
 //  block_support.cpp
-//  SpineSwiftRuntime
+//  spine-ios
 //
-//  Created by 박병관 on 11/18/25.
+//  Created by 박병관 on 7/22/25.
 //
 
-#include "spine_apple_extension/extensions/block_support.h"
+//#include <spine-c/block_support.h>
+#include <spine_apple_extension/block_support.h>
 #include <spine/spine.h>
+
 
 #if __BLOCKS__
 
@@ -32,6 +34,7 @@ namespace {
 		using Signature = R(Args...);
 	};
 
+
 	template<typename BlockType>
 	static inline BlockType SafeBlockCopy(BlockType block) {
 		if (block) {
@@ -46,6 +49,7 @@ namespace {
 			Block_release(block);
 		}
 	}
+
 
 	template<typename Signature>
 	class BlockWrapper;
@@ -105,6 +109,7 @@ namespace {
 		return BlockWrapper<typename BlockFunctionTraits<BlockType>::Signature>(block);
 	}
 
+
 	static inline void release_block(void *ptr) {
 		auto block = reinterpret_cast<SpineAnimationCallbackBlock>(ptr);
 		SafeBlockRelease(block);
@@ -128,7 +133,8 @@ namespace {
 	};
 
 	template<typename Base>
-	static inline void dispatch_block_callback(spine::AnimationState *state, spine::EventType type, spine::TrackEntry *entry, spine::Event *event) {
+	static inline void dispatch_block_callback(spine::AnimationState *state, spine::EventType type, spine::TrackEntry *entry, spine::Event *event,
+											   void *userData) {
 		SpineAnimationCallbackBlock block = BlockSelector<Base>::select(state, entry);
 		if (!block) return;
 		block(reinterpret_cast<spine_animation_state>(state), static_cast<spine_event_type>(type), reinterpret_cast<spine_track_entry>(entry),
@@ -162,7 +168,9 @@ namespace {
 		}
 	}
 
+
 }// namespace
+
 
 void spine_track_entry_set_block(spine_track_entry entry, SpineAnimationCallbackBlock block) {
 	auto self = reinterpret_cast<spine::TrackEntry *>(entry);

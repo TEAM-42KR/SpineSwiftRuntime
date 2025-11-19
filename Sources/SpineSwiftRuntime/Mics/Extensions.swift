@@ -5,7 +5,7 @@
 //  Created by 박병관 on 3/14/25.
 //
 import Foundation
-import SpineCppLite
+import SpineC
 import spine_apple_extension
 
 extension spine_atlas_page {

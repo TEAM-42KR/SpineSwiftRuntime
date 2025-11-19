@@ -9,8 +9,8 @@
     import Foundation
     import MetalKit
     import simd
+    import SpineC
     import spine_apple_extension
-    import SpineCppLite
 
     open class SpineMTKViewDefaultDelegate: SpineRenderer, MTKViewDelegate, SpineRendererDelegate {
 

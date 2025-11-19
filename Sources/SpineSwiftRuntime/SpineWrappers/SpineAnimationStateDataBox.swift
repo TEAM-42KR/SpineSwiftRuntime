@@ -5,7 +5,8 @@
 //  Created by 박병관 on 4/6/25.
 //
 import Foundation
-import SpineCppLite
+import SpineC
+import SpineSwift
 import spine_apple_extension
 
 open class SpineAnimationStateDataBox: NSObject {
@@ -56,14 +57,13 @@ open class SpineAnimationStateDataBox: NSObject {
     @objc
     open var skeletonData: SpineSkeletonDataBox { pSkeletonData }
 
-    @available(swift, obsoleted: 1.0)
     @objc
     public final func accessAnimation(
-        _ body: (spine_animation_state_data) -> Void
+        _ body: (AnimationStateData) -> Void
     ) {
 
         withUnsafeMutablePointer(to: &self.box[]) {
-            body($0)
+            body(.init(fromPointer: $0))
         }
     }
 

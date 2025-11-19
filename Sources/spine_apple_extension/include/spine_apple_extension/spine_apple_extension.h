@@ -1,24 +1,62 @@
 //
-//  spine_apple_extension.h
-//  SpineSwiftRuntime
+//  spine_apple_extension.hpp
+//  spine-ios
 //
-//  Created by 박병관 on 11/18/25.
+//  Created by 박병관 on 7/17/25.
 //
 
-#ifndef spine_apple_extension_h
-#define spine_apple_extension_h
-
-#include "spine-cpp-lite.h"
-#include <spine_apple_extension/arrays.h>
-#include <spine_apple_extension/atlas.h>
-#include <spine_apple_extension/atlas_page.h>
-#include <spine_apple_extension/format.h>
-#include <spine_apple_extension/skeleton_binary.h>
-#include <spine_apple_extension/skeleton_json.h>
-#include <spine_apple_extension/skeleton_renderer.h>
-#include <spine_apple_extension/spine_patch.h>
-#include <spine_apple_extension/texture_filter.h>
+#ifndef spine_apple_extension_hpp
+#define spine_apple_extension_hpp
+#include <spine-c.h>
 #include <spine_apple_extension/texture_loader.h>
-#include <spine_apple_extension/texture_wrap.h>
+#include <spine_apple_extension/SpineTextureLoaderContext.h>
+#include <spine_apple_extension/block_support.h>
 
-#endif /* spine_apple_extension_h */
+#if __cplusplus
+#include <spine/Extension.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <spine/TextureLoader.h>
+#include <spine_apple_extension/SpineContextTextureLoader.h>
+
+namespace spine {
+	class AtlasPage;
+	class String;
+
+	class AppleExtension : public spine::SpineExtension {
+
+	public:
+		const CFAllocatorRef allocator;
+
+		AppleExtension();
+		AppleExtension(const CFAllocatorRef);
+
+		void *_alloc(size_t size, const char *file, int line) override;
+
+		void *_realloc(void *ptr, size_t size, const char *file, int line) override;
+
+		void *_calloc(size_t size, const char *file, int line) override;
+
+		void _free(void *mem, const char *file, int line) override;
+
+		char *_readFile(const spine::String &path, int *length) override;
+	};
+
+
+	class NSDictionaryTextureLoader : public spine::TextureLoader {
+
+	public:
+		void load(spine::AtlasPage &page, const spine::String &path) override;
+
+		void unload(void *texture) override;
+	};
+
+	SpineExtension *getDefaultExtension();
+
+
+}
+
+#endif
+
+SPINE_C_API spine_texture_loader spine_get_default_dictionary_texture_loader(void);
+
+#endif /* spine_apple_extension_hpp */

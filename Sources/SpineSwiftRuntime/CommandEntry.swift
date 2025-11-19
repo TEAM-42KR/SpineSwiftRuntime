@@ -6,7 +6,7 @@ import SIMDSpineShadersStructs
 //
 //  Created by 박병관 on 3/17/25.
 //
-import SpineCppLite
+import SpineC
 import simd
 import spine_apple_extension
 
@@ -135,8 +135,8 @@ internal struct CommandEntry: Sendable {
                             uvs[xIndex],
                             uvs[yIndex],
                         ],
-                        color: colors[index],
-                        darkColor: darkColors[index]
+                        color: .init(bitPattern: colors[index]),
+                        darkColor: .init(bitPattern: darkColors[index])
                     )
                     mutableBuffer.append(vertex)
                 }

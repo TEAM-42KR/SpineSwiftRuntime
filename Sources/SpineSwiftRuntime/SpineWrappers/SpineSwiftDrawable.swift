@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import SpineC
+import SpineSwift
 import spine_apple_extension
 
 open class SpineSwiftDrawable: NSObject {
@@ -48,11 +50,11 @@ open class SpineSwiftDrawable: NSObject {
     public init(resource: SpineAnimationStateDataBox) {
         self.pResource = resource
         do {
-            let pSkeleton = spine_skeleton_create(&resource.skeletonData[])
+            let pSkeleton = spine_skeleton_create(&resource.skeletonData[])!
             self.pSkeletonBox = .init(pSkeleton)
         }
         do {
-            let pAnimationState = spine_animation_state_create(&resource[])
+            let pAnimationState = spine_animation_state_create(&resource[])!
             self.pAnimationStateBox = .init(pAnimationState)
         }
 
@@ -82,23 +84,21 @@ open class SpineSwiftDrawable: NSObject {
         pResource
     }
 
-    @available(swift, obsoleted: 1.0)
     @objc
     public func accessSkeleton(
-        _ body: (spine_skeleton) -> Void
+        _ body: (Skeleton) -> Void
     ) {
         withUnsafeMutablePointer(to: &self.pSkeletonBox[]) {
-            body($0)
+            body(.init(fromPointer: $0))
         }
     }
-    /// Do not modify listener and userData
-    @available(swift, obsoleted: 1.0)
+
     @objc
     public final func accessAnimation(
-        _ body: (spine_animation_state) -> Void
+        _ body: (AnimationState) -> Void
     ) {
         withUnsafeMutablePointer(to: &self.pAnimationStateBox[]) {
-            body($0)
+            body(.init(fromPointer: $0))
         }
     }
 
@@ -167,5 +167,43 @@ open class SpineSwiftDrawable: NSObject {
     // open func trackMoved(entry: UnsafeMutablePointer<spTrackEntry>, to type:spEventType, event: UnsafePointer<spEvent>?) {
 
     // }
+
+}
+
+@objc extension SpineSwift.TrackEntry {
+
+    public func runtime_setListener(_ block: ((AnimationState, spine_event_type, TrackEntry, Event?) -> Void)? = nil) {
+        if let k = block {
+            spine_track_entry_set_block(
+                self._ptr.assumingMemoryBound(to: spine_track_entry_wrapper.self),
+                {
+
+
+                    k(AnimationState(fromPointer: $0), $1, TrackEntry(fromPointer: $2), $3.flatMap(Event.init))
+                })
+        } else {
+            spine_track_entry_set_block(self._ptr.assumingMemoryBound(to: spine_track_entry_wrapper.self), nil)
+        }
+    }
+
+
+}
+
+@objc extension SpineSwift.AnimationState {
+
+    public func runtime_setListener(_ block: ((AnimationState, spine_event_type, TrackEntry, Event?) -> Void)? = nil) {
+        if let k = block {
+            spine_animation_state_set_block(
+                self._ptr.assumingMemoryBound(to: spine_animation_state_wrapper.self),
+                {
+
+
+                    k(AnimationState(fromPointer: $0), $1, TrackEntry(fromPointer: $2), $3.flatMap(Event.init))
+                })
+        } else {
+            spine_animation_state_set_block(self._ptr.assumingMemoryBound(to: spine_animation_state_wrapper.self), nil)
+        }
+    }
+
 
 }

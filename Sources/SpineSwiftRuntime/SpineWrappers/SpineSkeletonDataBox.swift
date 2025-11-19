@@ -5,6 +5,8 @@
 //  Created by 박병관 on 4/6/25.
 //
 import Foundation
+import SpineC
+import SpineSwift
 import spine_apple_extension
 
 open class SpineSkeletonDataBox: NSObject {
@@ -140,13 +142,12 @@ open class SpineSkeletonDataBox: NSObject {
     @objc
     open var atlas: SpineAtlasBox { pAtlas }
 
-    @available(swift, obsoleted: 1.0)
     @objc
     public func accessSkeleton(
-        _ body: (spine_skeleton_data) -> Void
+        _ body: (SkeletonData) -> Void
     ) {
         withUnsafeMutablePointer(to: &self[]) {
-            body($0)
+            body(.init(fromPointer: $0))
         }
     }
 
