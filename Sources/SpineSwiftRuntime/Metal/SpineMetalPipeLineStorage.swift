@@ -5,6 +5,7 @@
 //  Created by 박병관 on 7/5/25.
 //
 #if canImport(Metal)
+    import SpineSwiftRuntimeShaderContainer
     import Metal
     import SpineC
     import spine_apple_extension
@@ -32,25 +33,18 @@
             self.storage = storage
         }
 
-        @objc public convenience init(device: any MTLDevice, pixelFormat: MTLPixelFormat) throws {
-            let bundle: Bundle
-            #if SWIFT_PACKAGE  // SPM
-                bundle = .module
-            #else
-                bundle = Bundle(for: SpineMetalPipeLineStorage.self)
-            #endif
-            let defaultLibrary = try device.makeDefaultLibrary(bundle: bundle)
+        @objc public convenience init(library: any MTLLibrary, pixelFormat: MTLPixelFormat) throws {
             let blendModes = Self.caseIterableBlendModes
             let descriptor = MTLRenderPipelineDescriptor()
             let constants = MTLFunctionConstantValues()
             var premulAlphaTrue: Bool = true
             constants.setConstantValue(&premulAlphaTrue, type: .bool, withName: "kPremultiplyAlpha")
-            let pmaVertex: any MTLFunction = try defaultLibrary.makeFunction(name: "spine_vertexShader", constantValues: constants)
-            let pmaFragment = try defaultLibrary.makeFunction(name: "spine_fragmentShader", constantValues: constants)
+            let pmaVertex: any MTLFunction = try library.makeFunction(name: "spine_vertexShader", constantValues: constants)
+            let pmaFragment = try library.makeFunction(name: "spine_fragmentShader", constantValues: constants)
             premulAlphaTrue = false
             constants.setConstantValue(&premulAlphaTrue, type: .bool, withName: "kPremultiplyAlpha")
-            let nonpmaVertex: any MTLFunction = try defaultLibrary.makeFunction(name: "spine_vertexShader", constantValues: constants)
-            let nonpmaFragment = try defaultLibrary.makeFunction(name: "spine_fragmentShader", constantValues: constants)
+            let nonpmaVertex: any MTLFunction = try library.makeFunction(name: "spine_vertexShader", constantValues: constants)
+            let nonpmaFragment = try library.makeFunction(name: "spine_fragmentShader", constantValues: constants)
             descriptor.vertexFunction = nonpmaVertex
             descriptor.fragmentFunction = nonpmaFragment
             descriptor.colorAttachments[0].pixelFormat = pixelFormat
@@ -97,7 +91,7 @@
                         pipelineStates[.init(pma: pma, blendMode: blendMode)] = existing
                         buffer.append(existing)
                     } else {
-                        let newPipeLine = try device.makeRenderPipelineState(descriptor: descriptor)
+                        let newPipeLine = try library.device.makeRenderPipelineState(descriptor: descriptor)
                         pipeLinecache[hashCode] = newPipeLine
                         pipelineStates[.init(pma: pma, blendMode: blendMode)] = newPipeLine
                         buffer.append(newPipeLine)
@@ -106,6 +100,12 @@
 
             }
             self.init(storage: buffer)
+        }
+
+
+        @objc public convenience init(device: any MTLDevice, pixelFormat: MTLPixelFormat) throws {
+            let defaultLibrary = try device.makeDefaultLibrary(bundle: SpineSwiftRuntimeShaderContainer.exposedBundle())
+            try self.init(library: defaultLibrary, pixelFormat: pixelFormat)
         }
 
         @nonobjc
