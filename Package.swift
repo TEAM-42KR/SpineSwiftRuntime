@@ -38,6 +38,7 @@ let package = Package(
         .target(
             name: "SpineSwiftRuntime",
             dependencies: [
+                "SpineSwiftRuntimeShaderContainer",
                 "spine_apple_extension", "SIMDSpineShadersStructs",
                 .product(name: "SpineCppLite", package: "spine-runtimes"),
             ]
@@ -57,5 +58,6 @@ let package = Package(
             ]
         ),
         .systemLibrary(name: "SIMDSpineShadersStructs"),
+        .target(name: "SpineSwiftRuntimeShaderContainer"),
     ]
 )
