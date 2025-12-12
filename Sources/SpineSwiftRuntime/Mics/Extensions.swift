@@ -4,9 +4,9 @@
 //
 //  Created by 박병관 on 3/14/25.
 //
-import Foundation
-import SpineCppLite
-import spine_apple_extension
+public import Foundation
+internal import SpineCppLite
+public import spine_apple_extension
 
 extension spine_atlas_page {
 

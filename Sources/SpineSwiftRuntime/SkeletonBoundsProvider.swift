@@ -4,13 +4,11 @@
 //
 //  Created by 박병관 on 7/11/25.
 //
-
-
-import CoreGraphics
-import Foundation
-import SpineCppLite
-import simd
-import spine_apple_extension
+public import CoreGraphics
+public import Foundation
+internal import SpineCppLite
+internal import simd
+internal import spine_apple_extension
 
 @objc
 public protocol SkeletonBoundsProvider {

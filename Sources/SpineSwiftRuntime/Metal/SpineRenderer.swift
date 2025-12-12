@@ -5,13 +5,13 @@
 //  Created by 박병관 on 3/16/25.
 //
 
-import SIMDSpineShadersStructs
-import SpineCppLite
-import simd
-import spine_apple_extension
+internal import SIMDSpineShadersStructs
+internal import SpineCppLite
+internal import simd
+internal import spine_apple_extension
 
 #if canImport(Metal)
-    import Metal
+    public import Metal
 
     open class SpineRenderer: NSObject {
 

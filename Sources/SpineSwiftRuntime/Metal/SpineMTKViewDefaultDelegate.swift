@@ -5,12 +5,10 @@
 //  Created by 박병관 on 3/18/25.
 //
 #if canImport(MetalKit)
-    import Dispatch
-    import Foundation
-    import MetalKit
-    import simd
-    import spine_apple_extension
-    import SpineCppLite
+    public import MetalKit
+    internal import simd
+    public import spine_apple_extension
+    internal import SpineCppLite
 
     open class SpineMTKViewDefaultDelegate: SpineRenderer, MTKViewDelegate, SpineRendererDelegate {
 
