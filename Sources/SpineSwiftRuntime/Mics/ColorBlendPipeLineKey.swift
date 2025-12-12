@@ -4,8 +4,8 @@
 //
 //  Created by 박병관 on 3/17/25.
 //
-import Foundation
-import SpineCppLite
+public import Foundation
+public import SpineCppLite
 
 public struct ColorBlendPipeLineKey: Hashable, BitwiseCopyable, Sendable {
 

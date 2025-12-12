@@ -4,10 +4,10 @@
 //
 //  Created by 박병관 on 4/6/25.
 //
-import Foundation
-import SpineCppLite
-import spine_apple_extension
-import spine_apple_extension.ns_dictionary_texture_loader
+public import Foundation
+internal import SpineCppLite
+public import spine_apple_extension
+internal import spine_apple_extension.ns_dictionary_texture_loader
 
 open class SpineAtlasBox: NSObject {
 

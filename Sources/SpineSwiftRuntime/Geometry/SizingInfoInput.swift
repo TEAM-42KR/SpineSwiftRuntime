@@ -4,7 +4,7 @@
 //
 //  Created by 박병관 on 3/17/25.
 //
-import CoreGraphics
+public import CoreGraphics
 
 public struct SizingInfoInput: Hashable, BitwiseCopyable, Sendable {
 

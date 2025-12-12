@@ -4,8 +4,8 @@
 //
 //  Created by 박병관 on 4/6/25.
 //
-import Foundation
-import spine_apple_extension
+public import Foundation
+public import spine_apple_extension
 
 open class SpineSkeletonDataBox: NSObject {
 

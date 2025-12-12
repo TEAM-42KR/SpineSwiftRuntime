@@ -5,8 +5,8 @@
 //  Created by 박병관 on 3/14/25.
 //
 
-import Foundation
-import spine_apple_extension
+public import Foundation
+public import spine_apple_extension
 
 open class SpineSwiftDrawable: NSObject {
 
