@@ -5,10 +5,9 @@
 //  Created by 박병관 on 7/5/25.
 //
 #if canImport(Metal)
-    import SpineSwiftRuntimeShaderContainer
-    import Metal
-    import SpineC
-    import spine_apple_extension
+    internal import SpineSwiftRuntimeShaderContainer
+    public import Metal
+    public import SpineC
 
     public class SpineMetalPipeLineStorage: NSObject {
 

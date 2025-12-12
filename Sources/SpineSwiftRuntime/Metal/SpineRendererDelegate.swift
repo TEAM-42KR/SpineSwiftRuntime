@@ -5,12 +5,12 @@
 //  Created by 박병관 on 3/17/25.
 //
 
-import Foundation
-import SpineC
-import spine_apple_extension
+public import Foundation
+internal import SpineC
+public import spine_apple_extension
 
 #if canImport(Metal)
-    import Metal
+    public import Metal
     @objc
     public protocol SpineRendererDelegate: AnyObject {
 

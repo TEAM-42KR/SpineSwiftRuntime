@@ -4,19 +4,11 @@
 //
 //  Created by 박병관 on 7/11/25.
 //
-
-
-import CoreGraphics
-//
-//  BoundsProvider.swift
-//  spine-ios
-//
-//  Created by 박병관 on 3/16/25.
-//
-import Foundation
-import SpineC
-import simd
-import spine_apple_extension
+public import CoreGraphics
+public import Foundation
+internal import SpineC
+internal import simd
+internal import spine_apple_extension
 
 @objc
 public protocol SkeletonBoundsProvider {

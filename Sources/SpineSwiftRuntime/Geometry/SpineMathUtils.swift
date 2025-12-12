@@ -4,11 +4,9 @@
 //
 //  Created by 박병관 on 7/11/25.
 //
-import CoreGraphics
-import Foundation
-import SIMDSpineShadersStructs
-import SpineC
-import spine_apple_extension
+public import CoreGraphics
+internal import SIMDSpineShadersStructs
+public import SpineC
 
 public final class SpineMathUtils: NSObject {
 

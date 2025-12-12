@@ -6,7 +6,7 @@
 //
 
 #if canImport(Metal)
-    import Metal
+    internal import Metal
 
     final class ScratchBufferHolder: SpineVertexBuffer {
 

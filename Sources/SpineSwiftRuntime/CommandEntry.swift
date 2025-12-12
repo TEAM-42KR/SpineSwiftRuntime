@@ -1,14 +1,14 @@
-import Foundation
-import SIMDSpineShadersStructs
 //
 //  CommandEntry.swift
 //  spine-ios
 //
 //  Created by 박병관 on 3/17/25.
 //
-import SpineC
-import simd
-import spine_apple_extension
+internal import Foundation
+internal import SIMDSpineShadersStructs
+internal import SpineC
+internal import simd
+internal import spine_apple_extension
 
 internal struct CommandEntry: Sendable {
 
