@@ -21,7 +21,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/EsotericSoftware/spine-runtimes.git", branch: "4.3-beta")
+        .package(url: "https://github.com/EsotericSoftware/spine-runtimes.git", branch: "4.3")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
