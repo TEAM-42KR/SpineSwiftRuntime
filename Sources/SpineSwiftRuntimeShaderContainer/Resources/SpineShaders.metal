@@ -4,7 +4,17 @@ using namespace metal;
 
 #import "../../SIMDSpineShadersStructs/SIMDSpineShadersStructs.h"
 
-constant bool kPremultiplyAlpha [[function_constant(0)]];
+// Vertex colors arrive *straight* (non-premultiplied) from the C runtime, unlike
+// the Unity path which premultiplies on the CPU. This constant controls whether
+// the vertex shader premultiplies them — set it for premultiplied atlas pages so
+// the vertex color matches the premultiplied blend.
+constant bool kPremultiplyVertexColor [[function_constant(0)]];
+
+// Whether the sampled texel must be premultiplied in the fragment shader. Set
+// this only when a *straight* texture is composited into a premultiplied blend
+// (e.g. multiply/screen); an already-premultiplied page must leave it off to
+// avoid double-premultiplying.
+constant bool kPremultiplyTexture [[function_constant(1)]];
 
 struct RasterizerData {
     simd_float4 position [[position]];
@@ -57,7 +67,7 @@ spine_vertexShader(uint vertexID [[vertex_id]],
                           half((dark >> 0)  & 0xFF) / 255.0h,
                           half((dark >> 24) & 0xFF) / 255.0h
                           );
-    if (kPremultiplyAlpha) {
+    if (kPremultiplyVertexColor) {
         out.lightColor.rgb *= out.lightColor.a;
         out.darkColor.a = 1;
         out.darkColor.rgb *= out.lightColor.a;
@@ -78,7 +88,7 @@ spine_fragmentShader(
     
     const half4 rawSample = colorTexture.sample(textureSampler, in.textureCoordinate);
     
-    const half4 tex = half4(rawSample.rgb * (kPremultiplyAlpha ? rawSample.a : 1.0h), rawSample.a);
+    const half4 tex = half4(rawSample.rgb * (kPremultiplyTexture ? rawSample.a : 1.0h), rawSample.a);
     
     half4 src;
     src.a = tex.a * in.lightColor.a;

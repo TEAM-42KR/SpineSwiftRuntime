@@ -35,23 +35,35 @@
         @objc public convenience init(library: any MTLLibrary, pixelFormat: MTLPixelFormat) throws {
             let blendModes = Self.caseIterableBlendModes
             let descriptor = MTLRenderPipelineDescriptor()
-            let constants = MTLFunctionConstantValues()
-            var premulAlphaTrue: Bool = true
-            constants.setConstantValue(&premulAlphaTrue, type: .bool, withName: "kPremultiplyAlpha")
-            let pmaVertex: any MTLFunction = try library.makeFunction(name: "spine_vertexShader", constantValues: constants)
-            let pmaFragment = try library.makeFunction(name: "spine_fragmentShader", constantValues: constants)
-            premulAlphaTrue = false
-            constants.setConstantValue(&premulAlphaTrue, type: .bool, withName: "kPremultiplyAlpha")
-            let nonpmaVertex: any MTLFunction = try library.makeFunction(name: "spine_vertexShader", constantValues: constants)
-            let nonpmaFragment = try library.makeFunction(name: "spine_fragmentShader", constantValues: constants)
-            descriptor.vertexFunction = nonpmaVertex
-            descriptor.fragmentFunction = nonpmaFragment
+            // The vertex-color premultiply and the texture premultiply are two
+            // independent decisions, so specialize each stage with its own
+            // function constant. Vertex colors always arrive straight from the C
+            // runtime, so they must be premultiplied whenever the page is pma;
+            // the texture must only be premultiplied when it is straight and
+            // composited into a premultiplied blend.
+            func makeVertex(premultiplyColor: Bool) throws -> any MTLFunction {
+                let constants = MTLFunctionConstantValues()
+                var value = premultiplyColor
+                constants.setConstantValue(&value, type: .bool, withName: "kPremultiplyVertexColor")
+                return try library.makeFunction(name: "spine_vertexShader", constantValues: constants)
+            }
+            func makeFragment(premultiplyTexture: Bool) throws -> any MTLFunction {
+                let constants = MTLFunctionConstantValues()
+                var value = premultiplyTexture
+                constants.setConstantValue(&value, type: .bool, withName: "kPremultiplyTexture")
+                return try library.makeFunction(name: "spine_fragmentShader", constantValues: constants)
+            }
+
+            let vertexPremultiplied = try makeVertex(premultiplyColor: true)
+            let vertexStraight = try makeVertex(premultiplyColor: false)
+            let fragmentPremultipliesTexture = try makeFragment(premultiplyTexture: true)
+            let fragmentUsesTextureAsIs = try makeFragment(premultiplyTexture: false)
+
             descriptor.colorAttachments[0].pixelFormat = pixelFormat
             descriptor.vertexBuffers[0].mutability = .immutable
             descriptor.vertexBuffers[1].mutability = .immutable
             descriptor.vertexBuffers[2].mutability = .immutable
             descriptor.fragmentBuffers[0].mutability = .immutable
-            var pipelineStates = [ColorBlendPipeLineKey: MTLRenderPipelineState]()
             var pipeLinecache = [Int: MTLRenderPipelineState]()
             var buffer = ContiguousArray<MTLRenderPipelineState?>()
             for blendMode in blendModes {
@@ -69,30 +81,30 @@
                     continue
                 }
                 for pma in [false, true] {
-                    if pma {
-                        descriptor.vertexFunction = pmaVertex
-                    } else {
-                        descriptor.vertexFunction = nonpmaVertex
-                    }
-                    if blendMode == SPINE_BLEND_MODE_ADDITIVE || blendMode == SPINE_BLEND_MODE_NORMAL, pma {
-                        descriptor.label = label + "_PMA"
-                        descriptor.fragmentFunction = pmaFragment
-                    } else {
-                        descriptor.fragmentFunction = nonpmaFragment
-                        descriptor.label = label
-                    }
+                    // Vertex color: premultiply when the page is premultiplied.
+                    descriptor.vertexFunction = pma ? vertexPremultiplied : vertexStraight
+
+                    // Texture: premultiply the texel in-shader only for a straight
+                    // (non-pma) texture fed into a blend that expects a
+                    // premultiplied source RGB (multiply/screen). Normal/additive
+                    // let the .sourceAlpha factor do the weighting, and any pma
+                    // page is already premultiplied — so both leave it as-is.
+                    let premultiplyTextureInShader =
+                        (blendMode == SPINE_BLEND_MODE_MULTIPLY || blendMode == SPINE_BLEND_MODE_SCREEN) && !pma
+                    descriptor.fragmentFunction =
+                        premultiplyTextureInShader ? fragmentPremultipliesTexture : fragmentUsesTextureAsIs
+                    descriptor.label = premultiplyTextureInShader ? label + "_PMTEX" : label
+
                     descriptor.colorAttachments[0].apply(
                         blendMode: blendMode,
                         with: pma
                     )
                     let hashCode = descriptor.colorAttachments[0].computeLocalHashCode(pma: pma)
                     if let existing = pipeLinecache[hashCode] {
-                        pipelineStates[.init(pma: pma, blendMode: blendMode)] = existing
                         buffer.append(existing)
                     } else {
                         let newPipeLine = try library.device.makeRenderPipelineState(descriptor: descriptor)
                         pipeLinecache[hashCode] = newPipeLine
-                        pipelineStates[.init(pma: pma, blendMode: blendMode)] = newPipeLine
                         buffer.append(newPipeLine)
                     }
                 }
